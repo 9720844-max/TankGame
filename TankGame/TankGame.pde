@@ -1,13 +1,15 @@
 //Hernik Rohrwasser | April 1, 2026 | TankGame
 Tank t1;
+PImage TB1;
 
 void setup() {
-  size(500, 500);
+  size(1000, 1000);
   t1 = new Tank();
 }
 
 void draw() {
-  background(127);
+  TB1 = loadImage("tankbackground.png");
+  background(TB1);
   t1.display();
 }
 
