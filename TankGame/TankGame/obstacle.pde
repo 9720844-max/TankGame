@@ -19,13 +19,15 @@ class Obstacle {
 
   void display() {
     if (spike != null) {
+      image(spike, x+20, y+100);
       image(spike, x, y);
-    } else {
-      fill(128);
-      rect(x, y, w, h);
+     image(spike, x+40, y+300);
     }
   }
   void move() {
     x=x+speed;
+       if (x + w > width || x < 0) {
+      speed = speed * -1; 
+    }
   }
 }
