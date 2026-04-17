@@ -1,6 +1,7 @@
 //Hernik Rohrwasser | April 1, 2026 | TankGame
 Tank t1;
 ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+ArrayList<Obstacle> obstacles = new ArrayList<Obstacle>();
 Obstacle o1;
 PImage TB1;
 int score;
@@ -9,7 +10,7 @@ void setup() {
   size(1000, 1000);
   score = 0;
   t1 = new Tank();
-  o1 = new Obstacle(400, 100, 100, 50, 5, 100);
+  obstacles.add(new Obstacle(300, 200, 100, 100, int(random(1, 10)), 100));
 }
 
 void draw() {
@@ -20,12 +21,16 @@ void draw() {
     p.display();
     p.move();
   }
+  for (int i = 0; i < obstacles.size(); i++) {
+    Obstacle o = obstacles.get(i);
+    o.display();
+    o.move();
+  }
+
   t1.display();
-  o1.display();
-  o1.move();
+
   scorePanel();
 }
-
 void keyPressed() {
   if (key == 'w') {
     t1.move('w');
@@ -39,7 +44,16 @@ void keyPressed() {
 }
 
 void mousePressed() {
-  bullets.add(new Bullet(t1.x, t1.y, 4, 10));
+  float dx = mouseX - t1.x;
+  float dy = mouseY - t1.y;
+  float mag = sqrt(dx*dx + dy*dy);
+
+  if (mag > 0) {
+    dx /= mag;
+    dy /= mag;
+  }
+  float speed = 5;
+  bullets.add(new Bullet(t1.x, t1.y, dx * speed, dy * speed));
 }
 
 void scorePanel() {

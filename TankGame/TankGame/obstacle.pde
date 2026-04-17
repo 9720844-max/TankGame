@@ -21,15 +21,6 @@ class Obstacle {
   void display() {
    imageMode(CENTER);
    image(soldier,x,y+200);
-   image(soldier,x,y+700);
-   image(soldier,x+200,y+400);
-   image(soldier,x+40,y+900);
-   image(spike,500,500);
-   image(spike,123,850);
-   image(spike,672,104);
-   image(spike,915,433);
-   image(spike,305,617);
-   image(spike,88,971);
    
    
   }
