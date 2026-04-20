@@ -19,15 +19,13 @@ class Obstacle {
 
 
   void display() {
-   imageMode(CENTER);
-   image(soldier,x,y+200);
-   
-   
+    imageMode(CENTER);
+    image(soldier, x, y+200);
   }
   void move() {
-    x=x+3;
-       if(x > width) {
-      x=0; 
+    x=x+2;
+    if (x>width+w/2) {
+      x=0;
     }
   }
 }

@@ -34,7 +34,7 @@ class Tank {
 
   void move(char dir) {
     if (dir == 'w') {
-     idir = 'w';
+      idir = 'w';
       y = y - speed;
     } else if (dir == 's') {
       idir = 's';
@@ -43,7 +43,7 @@ class Tank {
       idir = 'a';
       x = x - speed;
     } else if (dir == 'd') {
-     idir = 'd';
+      idir = 'd';
       x = x + speed;
     }
   }
