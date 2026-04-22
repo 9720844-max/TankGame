@@ -23,7 +23,7 @@ void draw() {
   //Distribute object on timer
   if (objTimer.isFinished()) {
     //Addobject
-    obstacles.add(new Obstacle(300, 200, 100, 100, int(random(1, 100)), 100));
+    obstacles.add(new Obstacle(300, 200, 100, 100, int(random(1, 10)), 100));
     //restart timer
     objTimer.start();
   }
@@ -31,11 +31,24 @@ void draw() {
     Obstacle o = obstacles.get(i);
     o.display();
     o.move();
+    if(o.reachedEdge()) {
+    obstacles.remove(i);
+    }
+    //detect if close to tank
+   if(t1.intersect(o)) {
+     float distance = dist(x, y, o.x, o.y);
+    if (distance <100) {
+      return true;
+    } else {
+      return false;
+    }
+   }
+    //health of tank
   }
   // Render and detect collisions=
   for (int i = 0; i < bullets.size(); i++) {
     Bullet p = bullets.get(i);
-    for (int j = 0; j < bullets.size(); j++) {
+    for (int j = 0; j < obstacles.size(); j++) {
       Obstacle o = obstacles.get(j);
       if(p.intersect(o)) {
         score = score + 100;
@@ -46,12 +59,17 @@ void draw() {
     }
     p.display();
     p.move();
+    if(p.reachedEdge()) {
+    bullets.remove(i);
+    }
   }
   
   t1.display();
 
   scorePanel();
+  println("Projectiles in Memory");
 }
+
 void keyPressed() {
   if (key == 'w') {
     t1.move('w');
