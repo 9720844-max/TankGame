@@ -3,6 +3,7 @@ class Tank {
   float x, y, w, h, speed, health;
   PImage iTankS, iTankD, iTankW, iTankA;
   char idir;
+  int turretCount,laserCount;
 
   // Constructor
   Tank() {
@@ -17,6 +18,8 @@ class Tank {
     iTankW = loadImage("tank3.png");
     iTankA = loadImage("tank4.png");
     idir = 'w';
+    turretCount = 1;
+    laserCount = 100;
   }
 
   void display() {
@@ -34,7 +37,7 @@ class Tank {
 
   void move(char dir) {
     if (dir == 'w') {
-     idir = 'w';
+      idir = 'w';
       y = y - speed;
     } else if (dir == 's') {
       idir = 's';
@@ -43,11 +46,20 @@ class Tank {
       idir = 'a';
       x = x - speed;
     } else if (dir == 'd') {
-     idir = 'd';
+      idir = 'd';
       x = x + speed;
     }
   }
 
   void fire() {
   }
+  boolean intersect(Obstacle o) {
+    float distance = dist(x, y, o.x, o.y);
+    if (distance <100) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
 }
