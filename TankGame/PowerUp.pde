@@ -1,76 +1,53 @@
 class PowerUp {
-  // Member varibles
   float x, y, w, h, speed;
-  // PImage spike, soldier;
   char type;
 
-  // Constructor
-  PowerUp() {
-    w = 100;
-    h = 100;
-    speed = 5;
+  PowerUp(float x, float y) {
+    this.x = x;
+    this.y = y;
+    w = 60;
+    h = 60;
+    speed = 3;
 
-    if (int(random(4))==2) {
-      type = 'h';
-      x = random(width);
-      y = -100;
-    } else if  (int(random(3))==1) {
-      type = 't';
-      x = random(width);
-      y = -100;
-    } else {
-      type = 'a';
-      x = random(width);
-      y = -100;
-    }
-
-
-    //  idir = 'w';
-    // spike = loadImage("spike.png");
-    // soldier = loadImage("soldier.png");
+    float r = random(1);
+    if (r < 0.33) type = 'h';     // health
+    else if (r < 0.66) type = 't'; // turret
+    else type = 'a';              // ammo
   }
 
-
   void display() {
+    fill(255);
+    textAlign(CENTER);
+
     if (type == 'h') {
       fill(0, 200, 0);
       ellipse(x, y, w, h);
-      fill(100);
+      fill(255);
       text("Health", x, y);
-    } else if (type == 't') {
+    } 
+    else if (type == 't') {
       fill(0, 0, 200);
       ellipse(x, y, w, h);
-      fill(100);
+      fill(255);
       text("Turret", x, y);
-    } else if (type == 'h') {
-      fill(100, 0, 0);
+    } 
+    else if (type == 'a') {
+      fill(200, 0, 0);
       ellipse(x, y, w, h);
-      fill(100);
+      fill(255);
       text("Ammo", x, y);
     }
-
-    //imageMode(CENTER);
-    //i/mage(soldier, x, y+200);
   }
 
   void move() {
-    y = y + speed;
+    y += speed;
   }
 
   boolean reachedEdge() {
-
-    if (x<0-w/2 || x>width +w/2 || y < 0-w/2|| y> height+w/2) {
-      return true;
-    } else {
-      return false;
-    }
+    return (y > height + h);
   }
+
   boolean intersect(Tank t) {
-    float distance = dist(x, y, t.x, t.y);
-    if (distance <100) {
-      return true;
-    } else {
-      return false;
-    }
+    return dist(x, y, t.x, t.y) < (w/2 + t.w/2);
   }
 }

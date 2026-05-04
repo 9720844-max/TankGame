@@ -1,22 +1,22 @@
 class Tank {
-  // Member varibles
   float x, y, w, h, speed, health;
   PImage iTankS, iTankD, iTankW, iTankA;
   char idir;
-  int turretCount,laserCount;
+  int turretCount, laserCount;
 
-  // Constructor
   Tank() {
-    x = 100.0;
-    y = 100.0;
-    w = 100.0;
-    h = 100.0;
-    speed = 3.0;
-    health = 75.0;
+    x = 100;
+    y = 100;
+    w = 100;
+    h = 100;
+    speed = 3;
+    health = 75;
+
     iTankS = loadImage("tank.png");
     iTankD = loadImage("tank2.png");
     iTankW = loadImage("tank3.png");
     iTankA = loadImage("tank4.png");
+
     idir = 'w';
     turretCount = 1;
     laserCount = 100;
@@ -24,42 +24,21 @@ class Tank {
 
   void display() {
     imageMode(CENTER);
-    if (idir == 'w') {
-      image(iTankW, x, y);
-    } else if (idir == 's') {
-      image(iTankS, x, y);
-    } else if (idir == 'd') {
-      image(iTankD, x, y);
-    } else if (idir == 'a') {
-      image(iTankA, x, y);
-    }
+    if (idir == 'w') image(iTankW, x, y);
+    else if (idir == 's') image(iTankS, x, y);
+    else if (idir == 'd') image(iTankD, x, y);
+    else if (idir == 'a') image(iTankA, x, y);
   }
 
   void move(char dir) {
-    if (dir == 'w') {
-      idir = 'w';
-      y = y - speed;
-    } else if (dir == 's') {
-      idir = 's';
-      y = y + speed;
-    } else if (dir == 'a') {
-      idir = 'a';
-      x = x - speed;
-    } else if (dir == 'd') {
-      idir = 'd';
-      x = x + speed;
-    }
+    idir = dir;
+    if (dir == 'w') y -= speed;
+    else if (dir == 's') y += speed;
+    else if (dir == 'a') x -= speed;
+    else if (dir == 'd') x += speed;
   }
 
-  void fire() {
-  }
   boolean intersect(Obstacle o) {
-    float distance = dist(x, y, o.x, o.y);
-    if (distance <100) {
-      return true;
-    } else {
-      return false;
-    }
+    return dist(x, y, o.x, o.y) < (w/2 + o.w/2);
   }
-  
 }

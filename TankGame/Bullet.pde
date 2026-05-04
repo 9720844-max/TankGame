@@ -1,10 +1,7 @@
 class Bullet {
-  // Member varibles
-  float x, y, w, h, speed;
+  float x, y, w, h;
   float vx, vy;
-  //PImage spike, soldier;
 
-  // Constructor
   Bullet(float x, float y, float vx, float vy) {
     this.x = x;
     this.y = y;
@@ -12,33 +9,24 @@ class Bullet {
     this.h = 10;
     this.vx = vx;
     this.vy = vy;
-    speed = 10;
   }
-
 
   void display() {
     fill(255, 0, 0);
+    rectMode(CENTER);
     rect(x, y, w, h);
   }
+
   void move() {
-    //y = y - speed;
     x += vx;
     y += vy;
   }
-  boolean intersect(Obstacle o) {
-    float distance = dist(x, y, o.x, o.y);
-    if (distance <100) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  boolean reachedEdge() {
 
-    if (x<0-w/2 || x>width +w/2 || y < 0-w/2|| y> height+w/2) {
-      return true;
-    } else {
-      return false;
-    }
+  boolean intersect(Obstacle o) {
+    return dist(x, y, o.x, o.y) < (o.w/2 + w/2);
+  }
+
+  boolean reachedEdge() {
+    return (x < -w || x > width + w || y < -h || y > height + h);
   }
 }
