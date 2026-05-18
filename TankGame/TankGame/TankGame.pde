@@ -2,105 +2,184 @@
 Tank t1;
 ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 ArrayList<Obstacle> obstacles = new ArrayList<Obstacle>();
-Obstacle o1;
-PImage TB1;
+ArrayList<PowerUp> powerups = new ArrayList<PowerUp>();
+
+PImage TB1, startScreen, endScreen;
 int score;
-Timer objTimer;
+Timer objTimer, puTimer;
+boolean play;
 
 void setup() {
   size(1000, 1000);
   score = 0;
+
   t1 = new Tank();
+
+  TB1 = loadImage("tankbackground.png");
+  startScreen = loadImage("startscreen.png");
+  endScreen = loadImage("endscreen.png");
+  play = false;
   objTimer = new Timer(1000);
   objTimer.start();
-  //obstacles.add(new Obstacle(300, 200, 100, 100, int(random(1, 10)), 100));
+
+  puTimer = new Timer(5000);
+  puTimer.start();
 }
 
 void draw() {
-  TB1 = loadImage("tankbackground.png");
-  background(TB1);
+  if (play == false) {
+    //todo create start screen method
+    startScreen();
+  } else {
+    background(TB1);
 
-  //Distribute object on timer
-  if (objTimer.isFinished()) {
-    //Addobject
-    obstacles.add(new Obstacle(300, 200, 100, 100, int(random(1, 10)), 100));
-    //restart timer
-    objTimer.start();
-  }
-  for (int i = 0; i < obstacles.size(); i++) {
-    Obstacle o = obstacles.get(i);
-    o.display();
-    o.move();
-    if(o.reachedEdge()) {
-    obstacles.remove(i);
+    if (objTimer.isFinished()) {
+      for (int i = 0; i < 5; i++) {
+        obstacles.add(new Obstacle(
+          int(random(-100, 20)),
+          int(random(0, height)),
+          100, 100,
+          5,
+          int(random(1, 10))
+          ));
+      }
+      objTimer.start();
     }
-    //detect if close to tank
-   if(t1.intersect(o)) {
-     float distance = dist(x, y, o.x, o.y);
-    if (distance <100) {
-      return true;
-    } else {
-      return false;
-    }
-   }
-    //health of tank
-  }
-  // Render and detect collisions=
-  for (int i = 0; i < bullets.size(); i++) {
-    Bullet p = bullets.get(i);
-    for (int j = 0; j < obstacles.size(); j++) {
-      Obstacle o = obstacles.get(j);
-      if(p.intersect(o)) {
-        score = score + 100;
-        bullets.remove(i);
-        obstacles.remove(j);
+
+    // -------------------------
+    // UPDATE OBSTACLES
+    // -------------------------
+    for (int i = obstacles.size()-1; i >= 0; i--) {
+      Obstacle o = obstacles.get(i);
+      o.display();
+      o.move();
+
+      if (o.reachedEdge()) {
+        obstacles.remove(i);
         continue;
       }
-    }
-    p.display();
-    p.move();
-    if(p.reachedEdge()) {
-    bullets.remove(i);
-    }
-  }
-  
-  t1.display();
 
-  scorePanel();
-  println("Projectiles in Memory");
+      if (t1.intersect(o)) {
+        t1.health -= 50;
+        obstacles.remove(i);
+      }
+    }
+
+    // -------------------------
+    // UPDATE POWERUPS
+    // -------------------------
+    if (puTimer.isFinished()) {
+      powerups.add(new PowerUp(100, 100));
+      puTimer.start();
+    }
+
+    for (int i = powerups.size()-1; i >= 0; i--) {
+      PowerUp p = powerups.get(i);
+      p.display();
+      p.move();
+
+      if (p.reachedEdge()) {
+        powerups.remove(i);
+        continue;
+      }
+
+      if (p.intersect(t1)) {
+        if (p.type == 't') t1.turretCount++;
+        else if (p.type == 'a') t1.laserCount += 100;
+        else if (p.type == 'h') t1.health += 100;
+
+        powerups.remove(i);
+      }
+    }
+
+    // -------------------------
+    // BULLETS + COLLISIONS
+    // -------------------------
+    for (int i = bullets.size()-1; i >= 0; i--) {
+      Bullet b = bullets.get(i);
+
+      for (int j = obstacles.size()-1; j >= 0; j--) {
+        Obstacle o = obstacles.get(j);
+
+        if (b.intersect(o)) {
+          score += 100;
+          bullets.remove(i);
+          obstacles.remove(j);
+          break;
+        }
+      }
+
+      b.display();
+      b.move();
+
+      if (b.reachedEdge()) {
+        bullets.remove(i);
+      }
+    }
+
+    // -------------------------
+    // DRAW TANK + UI
+    // -------------------------
+    t1.display();
+    scorePanel();
+  }
+}
+
+void displayStartScreen() {
+  background(100);
+  textAlign(CENTER, CENTER);
+  textSize(30);
+  text("Press mouse to start", width/2, height/2);
+}
+
+void scorePanel() {
+  fill(127, 200);
+  rectMode(CENTER);
+  rect(width/2, 30, width, 60);
+
+  fill(255);
+  textSize(30);
+  text("Score: " + score, width/2 - 200, 25);
+  text("Health: " + t1.health, width/2, 25);
+  text("Ammo: " + t1.laserCount, width/2 + 200, 25);
 }
 
 void keyPressed() {
-  if (key == 'w') {
-    t1.move('w');
-  } else if (key == 's') {
-    t1.move('s');
-  } else if (key == 'a') {
-    t1.move('a');
-  } else if (key == 'd') {
-    t1.move('d');
-  }
+  if (key == 'w') t1.move('w');
+  else if (key == 's') t1.move('s');
+  else if (key == 'a') t1.move('a');
+  else if (key == 'd') t1.move('d');
 }
 
 void mousePressed() {
   float dx = mouseX - t1.x;
   float dy = mouseY - t1.y;
   float mag = sqrt(dx*dx + dy*dy);
+
   if (mag > 0) {
     dx /= mag;
     dy /= mag;
   }
+
   float speed = 5;
-  bullets.add(new Bullet(t1.x, t1.y, dx *speed, dy * speed));
+
+  if (t1.turretCount == 1 && t1.laserCount > 0) {
+    bullets.add(new Bullet(t1.x, t1.y, dx * speed, dy * speed));
+    t1.laserCount--;
+  } else if (t1.turretCount == 2 && t1.laserCount > 2) {
+    bullets.add(new Bullet(t1.x - 20, t1.y, dx * speed, dy * speed));
+    bullets.add(new Bullet(t1.x + 20, t1.y, dx * speed, dy * speed));
+    t1.laserCount -= 2;
+  }
 }
 
-void scorePanel() {
-  fill(127, 200);
-  rectMode(CENTER);
-  noStroke();
-  rect(width/2, 15, width, 30);
-  fill(255);
-  textSize(25);
-  textAlign(CENTER);
-  text("Score:" + score, width/2, 25);
+void startScreen() {
+  imageMode(CORNER);
+  image(startScreen, 0, 0);
+  if (mousePressed) {
+    play = true;
+  }
+}
+void endScreen() {
+image(endScreen,0,0);
 }
