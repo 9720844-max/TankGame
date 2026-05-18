@@ -4,10 +4,10 @@ ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 ArrayList<Obstacle> obstacles = new ArrayList<Obstacle>();
 ArrayList<PowerUp> powerups = new ArrayList<PowerUp>();
 
-PImage TB1;
+PImage TB1, startScreen, endScreen;
 int score;
-
 Timer objTimer, puTimer;
+boolean play;
 
 void setup() {
   size(1000, 1000);
@@ -16,7 +16,9 @@ void setup() {
   t1 = new Tank();
 
   TB1 = loadImage("tankbackground.png");
-
+  startScreen = loadImage("startscreen.png");
+  endScreen = loadImage("endscreen.png");
+  play = false;
   objTimer = new Timer(1000);
   objTimer.start();
 
@@ -25,100 +27,109 @@ void setup() {
 }
 
 void draw() {
-  background(TB1);
+  if (play == false) {
+    //todo create start screen method
+    startScreen();
+  } else {
+    background(TB1);
 
-  // -------------------------
-  // SPAWN OBSTACLES
-  // -------------------------
-  if (objTimer.isFinished()) {
-    for (int i = 0; i < 5; i++) {
-      obstacles.add(new Obstacle(
-        int(random(-100, 20)),
-        int(random(0, height)),
-        100, 100,
-        5,
-        int(random(1, 10))
-      ));
-    }
-    objTimer.start();
-  }
-
-  // -------------------------
-  // UPDATE OBSTACLES
-  // -------------------------
-  for (int i = obstacles.size()-1; i >= 0; i--) {
-    Obstacle o = obstacles.get(i);
-    o.display();
-    o.move();
-
-    if (o.reachedEdge()) {
-      obstacles.remove(i);
-      continue;
+    if (objTimer.isFinished()) {
+      for (int i = 0; i < 5; i++) {
+        obstacles.add(new Obstacle(
+          int(random(-100, 20)),
+          int(random(0, height)),
+          100, 100,
+          5,
+          int(random(1, 10))
+          ));
+      }
+      objTimer.start();
     }
 
-    if (t1.intersect(o)) {
-      t1.health -= 50;
-      obstacles.remove(i);
-    }
-  }
+    // -------------------------
+    // UPDATE OBSTACLES
+    // -------------------------
+    for (int i = obstacles.size()-1; i >= 0; i--) {
+      Obstacle o = obstacles.get(i);
+      o.display();
+      o.move();
 
-  // -------------------------
-  // UPDATE POWERUPS
-  // -------------------------
-  if (puTimer.isFinished()) {
-    powerups.add(new PowerUp(100, 100));
-    puTimer.start();
-  }
+      if (o.reachedEdge()) {
+        obstacles.remove(i);
+        continue;
+      }
 
-  for (int i = powerups.size()-1; i >= 0; i--) {
-    PowerUp p = powerups.get(i);
-    p.display();
-    p.move();
-
-    if (p.reachedEdge()) {
-      powerups.remove(i);
-      continue;
-    }
-
-    if (p.intersect(t1)) {
-      if (p.type == 't') t1.turretCount++;
-      else if (p.type == 'a') t1.laserCount += 100;
-      else if (p.type == 'h') t1.health += 100;
-
-      powerups.remove(i);
-    }
-  }
-
-  // -------------------------
-  // BULLETS + COLLISIONS
-  // -------------------------
-  for (int i = bullets.size()-1; i >= 0; i--) {
-    Bullet b = bullets.get(i);
-
-    for (int j = obstacles.size()-1; j >= 0; j--) {
-      Obstacle o = obstacles.get(j);
-
-      if (b.intersect(o)) {
-        score += 100;
-        bullets.remove(i);
-        obstacles.remove(j);
-        break;
+      if (t1.intersect(o)) {
+        t1.health -= 50;
+        obstacles.remove(i);
       }
     }
 
-    b.display();
-    b.move();
-
-    if (b.reachedEdge()) {
-      bullets.remove(i);
+    // -------------------------
+    // UPDATE POWERUPS
+    // -------------------------
+    if (puTimer.isFinished()) {
+      powerups.add(new PowerUp(100, 100));
+      puTimer.start();
     }
-  }
 
-  // -------------------------
-  // DRAW TANK + UI
-  // -------------------------
-  t1.display();
-  scorePanel();
+    for (int i = powerups.size()-1; i >= 0; i--) {
+      PowerUp p = powerups.get(i);
+      p.display();
+      p.move();
+
+      if (p.reachedEdge()) {
+        powerups.remove(i);
+        continue;
+      }
+
+      if (p.intersect(t1)) {
+        if (p.type == 't') t1.turretCount++;
+        else if (p.type == 'a') t1.laserCount += 100;
+        else if (p.type == 'h') t1.health += 100;
+
+        powerups.remove(i);
+      }
+    }
+
+    // -------------------------
+    // BULLETS + COLLISIONS
+    // -------------------------
+    for (int i = bullets.size()-1; i >= 0; i--) {
+      Bullet b = bullets.get(i);
+
+      for (int j = obstacles.size()-1; j >= 0; j--) {
+        Obstacle o = obstacles.get(j);
+
+        if (b.intersect(o)) {
+          score += 100;
+          bullets.remove(i);
+          obstacles.remove(j);
+          break;
+        }
+      }
+
+      b.display();
+      b.move();
+
+      if (b.reachedEdge()) {
+        bullets.remove(i);
+      }
+    }
+
+    // -------------------------
+    // DRAW TANK + UI
+    // -------------------------
+    t1.display();
+    scorePanel();
+  }
+}
+
+void displayStartScreen() {
+  background(100);
+  textAlign(CENTER, CENTER);
+  textSize(30);
+  text("Press mouse to start", width/2, height/2);
 }
 
 void scorePanel() {
@@ -155,10 +166,20 @@ void mousePressed() {
   if (t1.turretCount == 1 && t1.laserCount > 0) {
     bullets.add(new Bullet(t1.x, t1.y, dx * speed, dy * speed));
     t1.laserCount--;
-  } 
-  else if (t1.turretCount == 2 && t1.laserCount > 2) {
+  } else if (t1.turretCount == 2 && t1.laserCount > 2) {
     bullets.add(new Bullet(t1.x - 20, t1.y, dx * speed, dy * speed));
     bullets.add(new Bullet(t1.x + 20, t1.y, dx * speed, dy * speed));
     t1.laserCount -= 2;
   }
+}
+
+void startScreen() {
+  imageMode(CORNER);
+  image(startScreen, 0, 0);
+  if (mousePressed) {
+    play = true;
+  }
+}
+void endScreen() {
+image(endScreen,0,0);
 }
